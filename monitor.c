@@ -543,9 +543,9 @@ int mutt_monitor_remove(struct Mailbox *m)
     goto cleanup;
   }
 
-  struct Mailbox *cm = ctx_mailbox(Context);
+  struct Mailbox *m_ctx = ctx_mailbox(Context);
 
-  if (cm)
+  if (m_ctx)
   {
     if (m)
     {
@@ -558,7 +558,7 @@ int mutt_monitor_remove(struct Mailbox *m)
     }
     else
     {
-      if (mailbox_find(cm->realpath))
+      if (mailbox_find(m_ctx->realpath))
       {
         rc = 1;
         goto cleanup;

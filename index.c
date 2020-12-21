@@ -690,25 +690,25 @@ static void change_folder_mailbox(struct Menu *menu, struct Mailbox *m, int *old
   if (!m)
     return;
 
-  struct Mailbox *cm = ctx_mailbox(Context);
+  struct Mailbox *m_ctx = ctx_mailbox(Context);
 
   /* keepalive failure in mutt_enter_fname may kill connection. */
-  if (cm && (mutt_buffer_is_empty(&cm->pathbuf)))
+  if (m_ctx && (mutt_buffer_is_empty(&m_ctx->pathbuf)))
     ctx_free(&Context);
 
-  if (cm)
+  if (m_ctx)
   {
     char *new_last_folder = NULL;
 #ifdef USE_INOTIFY
     int monitor_remove_rc = mutt_monitor_remove(NULL);
 #endif
 #ifdef USE_COMP_MBOX
-    if (cm->compress_info && (cm->realpath[0] != '\0'))
-      new_last_folder = mutt_str_dup(cm->realpath);
+    if (m_ctx->compress_info && (m_ctx->realpath[0] != '\0'))
+      new_last_folder = mutt_str_dup(m_ctx->realpath);
     else
 #endif
-      new_last_folder = mutt_str_dup(mailbox_path(cm));
-    *oldcount = cm->msg_count;
+      new_last_folder = mutt_str_dup(mailbox_path(m_ctx));
+    *oldcount = m_ctx->msg_count;
 
     int check = mx_mbox_close(&Context);
     if (check != 0)

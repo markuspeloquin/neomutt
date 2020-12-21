@@ -289,9 +289,9 @@ static const char *sidebar_format_str(char *buf, size_t buflen, size_t col, int 
   if (!m)
     return src;
 
-  struct Mailbox *cm = ctx_mailbox(Context);
+  struct Mailbox *m_ctx = ctx_mailbox(Context);
 
-  bool c = cm && mutt_str_equal(cm->realpath, m->realpath);
+  bool c = m_ctx && mutt_str_equal(m_ctx->realpath, m->realpath);
 
   bool optional = (flags & MUTT_FORMAT_OPTIONAL);
 
@@ -313,9 +313,9 @@ static const char *sidebar_format_str(char *buf, size_t buflen, size_t col, int 
       if (!optional)
       {
         snprintf(fmt, sizeof(fmt), "%%%sd", prec);
-        snprintf(buf, buflen, fmt, c ? cm->msg_deleted : 0);
+        snprintf(buf, buflen, fmt, c ? m_ctx->msg_deleted : 0);
       }
-      else if ((c && (cm->msg_deleted == 0)) || !c)
+      else if ((c && (m_ctx->msg_deleted == 0)) || !c)
         optional = false;
       break;
 
@@ -333,9 +333,9 @@ static const char *sidebar_format_str(char *buf, size_t buflen, size_t col, int 
       if (!optional)
       {
         snprintf(fmt, sizeof(fmt), "%%%sd", prec);
-        snprintf(buf, buflen, fmt, c ? cm->vcount : m->msg_count);
+        snprintf(buf, buflen, fmt, c ? m_ctx->vcount : m->msg_count);
       }
-      else if ((c && (cm->vcount == m->msg_count)) || !c)
+      else if ((c && (m_ctx->vcount == m->msg_count)) || !c)
         optional = false;
       break;
 
@@ -365,7 +365,7 @@ static const char *sidebar_format_str(char *buf, size_t buflen, size_t col, int 
         snprintf(fmt, sizeof(fmt), "%%%sd", prec);
         snprintf(buf, buflen, fmt, m->msg_unread - m->msg_new);
       }
-      else if ((c && (cm->msg_unread - cm->msg_new) == 0) || !c)
+      else if ((c && (m_ctx->msg_unread - m_ctx->msg_new) == 0) || !c)
         optional = false;
       break;
 
@@ -375,7 +375,7 @@ static const char *sidebar_format_str(char *buf, size_t buflen, size_t col, int 
         snprintf(fmt, sizeof(fmt), "%%%sd", prec);
         snprintf(buf, buflen, fmt, m->msg_count - m->msg_unread);
       }
-      else if ((c && (cm->msg_count - cm->msg_unread) == 0) || !c)
+      else if ((c && (m_ctx->msg_count - m_ctx->msg_unread) == 0) || !c)
         optional = false;
       break;
 
@@ -393,9 +393,9 @@ static const char *sidebar_format_str(char *buf, size_t buflen, size_t col, int 
       if (!optional)
       {
         snprintf(fmt, sizeof(fmt), "%%%sd", prec);
-        snprintf(buf, buflen, fmt, c ? cm->msg_tagged : 0);
+        snprintf(buf, buflen, fmt, c ? m_ctx->msg_tagged : 0);
       }
-      else if ((c && (cm->msg_tagged == 0)) || !c)
+      else if ((c && (m_ctx->msg_tagged == 0)) || !c)
         optional = false;
       break;
 
@@ -405,7 +405,7 @@ static const char *sidebar_format_str(char *buf, size_t buflen, size_t col, int 
         snprintf(fmt, sizeof(fmt), "%%%sd", prec);
         snprintf(buf, buflen, fmt, m->msg_new);
       }
-      else if ((c && (cm->msg_new) == 0) || !c)
+      else if ((c && (m_ctx->msg_new) == 0) || !c)
         optional = false;
       break;
 
@@ -670,17 +670,18 @@ int sb_recalc(struct MuttWindow *win)
 
     struct SbEntry *entry = (*sbep);
     struct Mailbox *m = entry->mailbox;
-    struct Mailbox *cm = ctx_mailbox(Context);
+    struct Mailbox *m_ctx = ctx_mailbox(Context);
 
     const int entryidx = ARRAY_FOREACH_IDX;
     entry->color =
         calc_color(m, (entryidx == wdata->opn_index), (entryidx == wdata->hil_index));
 
-    if (cm && (cm->realpath[0] != '\0') && mutt_str_equal(m->realpath, cm->realpath))
+    if (m_ctx && (m_ctx->realpath[0] != '\0') &&
+        mutt_str_equal(m->realpath, m_ctx->realpath))
     {
-      m->msg_unread = cm->msg_unread;
-      m->msg_count = cm->msg_count;
-      m->msg_flagged = cm->msg_flagged;
+      m->msg_unread = m_ctx->msg_unread;
+      m->msg_count = m_ctx->msg_count;
+      m->msg_flagged = m_ctx->msg_flagged;
     }
 
     const char *path = mailbox_path(m);
